@@ -1,4 +1,5 @@
 import "./Post.css";
+import styles from "./Post.module.css";
 
 import { useParams } from "react-router-dom";
 import posts from "json/posts.json";
@@ -26,6 +27,13 @@ export default function Post() {
     return <NaoEncontrada />;
   }
 
+  // lógica para criar um array dos 4 últimos posts sem contar com o post selecionado
+  const postsRecomendados = posts
+    .filter((post) => post.id !== Number(parametros.id)) //aqui se cria um novo array de posts sem incluir o post selecionado
+    .sort((a, b) => b.id - a.id) // aqui ordena em forma decrescente baseado no índice do array
+    .slice(0, 4); // aqui "recorta" somente os 4 primeiros elementos do array
+  // ao final teremos um array com os 4 últimos posts sem contar com o post atual
+
   return (
     <PaginaPadrao>
       <PostModelo
@@ -33,11 +41,26 @@ export default function Post() {
         titulo={post.titulo}>
         <div className="post-markdown-container">
           {/* 
-                  estamos recebendo do json um texto em .md (markdown), é uma linguagem de marcação que usamos para escrever documentações ou readme de repositórios
-                  só que o browser não lê markdown, então o componente ReactMarkdown que vem da biblioteca react-markdown faz a conversão do markdown para HTML
-                */}
+            estamos recebendo do json um texto em .md (markdown), é uma linguagem de marcação que usamos para escrever documentações ou readme de repositórios
+            só que o browser não lê markdown, então o componente ReactMarkdown que vem da biblioteca react-markdown faz a conversão do markdown para HTML
+          */}
           <ReactMarkdown>{post.texto}</ReactMarkdown>
         </div>
+
+        <h2 className={styles.tituloOutrosPosts}>
+          Outros posts que você pode gostar:
+        </h2>
+
+        {/* 
+          aqui criamos uma nova lista usando o map, pegando aquele array criado do postsRecomendados e inserindo no componente PostCard
+        */}
+        <ul className={styles.postsRecomendados}>
+          {postsRecomendados.map((post, index) => (
+            <li key={index}>
+              <PostCard post={post} />
+            </li>
+          ))}
+        </ul>
       </PostModelo>
     </PaginaPadrao>
   );
